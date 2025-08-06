@@ -102,14 +102,19 @@ function rotarPieza(matriz) {
   return nueva;
 }
 
+let puntaje = 0;
+
 function limpiarFilasCompletas() {
   for (let fila = FILAS - 1; fila >= 0; fila--) {
     if (tablero[fila].every(celda => celda !== 0)) {
       tablero.splice(fila, 1);
       tablero.unshift(Array(COLUMNAS).fill(0));
-      fila++; // revisar nuevamente la misma fila
+      puntaje += 100;
+      fila++; // revisar de nuevo
     }
   }
+
+  document.getElementById("puntaje").innerText = `Puntaje: ${puntaje}`;
 }
 
 // ========== VARIABLES DE ESTADO ==========
@@ -155,8 +160,31 @@ function bajarPieza() {
   dibujarTableroVisual(tablero);
 }
 
+function puedeColocar(tablero, pieza, filaPos, colPos) {
+  for (let fila = 0; fila < pieza.length; fila++) {
+    for (let col = 0; col < pieza[fila].length; col++) {
+      if (pieza[fila][col] !== 0) {
+        const nuevaFila = filaPos + fila;
+        const nuevaCol = colPos + col;
+
+        if (
+          nuevaFila < 0 || nuevaFila >= FILAS ||
+          nuevaCol < 0 || nuevaCol >= COLUMNAS ||
+          tablero[nuevaFila][nuevaCol] !== 0
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+
 // ========== EVENTOS DE TECLADO ==========
 document.addEventListener("keydown", (e) => {
+  if (!pieza) return;
+
   borrarPiezaDelTablero(tablero, pieza, filaActual, colActual);
 
   if (e.key === "ArrowLeft") {
@@ -172,15 +200,20 @@ document.addEventListener("keydown", (e) => {
       filaActual++;
     }
   } else if (e.key === "ArrowUp") {
-    const piezaRotada = rotarPieza(pieza);
-    if (puedeMover(tablero, piezaRotada, filaActual, colActual)) {
-      pieza = piezaRotada;
+    const rotada = rotarPieza(pieza);
+    if (puedeColocar(tablero, rotada, filaActual, colActual)) {
+      pieza = rotada;
+    }
+  }else if (e.key === " ") {
+    while (puedeMover(tablero, pieza, filaActual + 1, colActual)) {
+      filaActual++;
     }
   }
 
   colocarPiezaEnTablero(tablero, pieza, tipo, filaActual, colActual);
   dibujarTableroVisual(tablero);
 });
+
 
 // ========== INICIAR JUEGO ==========
 generarNuevaPieza();
