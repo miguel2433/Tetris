@@ -30,6 +30,14 @@
     box-sizing: border-box;
   }
 
+.contenedor-externo{
+  height: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  flex-direction: column;
+}
+
 #puntaje{
   width: 100px;
   height: 100px;
@@ -42,3 +50,9 @@
   border: 4px solid #fff;
   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
+#canvas-pieza-guardada {
+  display: block;
+} 
+
+
