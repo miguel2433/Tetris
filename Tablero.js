@@ -20,6 +20,8 @@ export class Tablero {
 		this.piezaGuardada = null;
 		this.puedeGuardar = true;
 
+		this.colaProximas = [new Pieza(), new Pieza(), new Pieza(), new Pieza()];
+
 		this.contenedorGuardado = contenedorGuardado;
 		if (this.contenedorGuardado) {
 			this.inicializarVistaGuardado();
@@ -135,7 +137,9 @@ export class Tablero {
 	}
 
 	generarNuevaPieza() {
-		this.piezaActual = new Pieza(500);
+		this.piezaActual = this.colaProximas.shift(); // Sacar de la cola
+		this.colaProximas.push(new Pieza()); // Meter una nueva al final
+
 		this.pieza = this.piezaActual.forma;
 		this.tipo = this.piezaActual.tipo;
 		this.filaActual = 0;
@@ -150,8 +154,9 @@ export class Tablero {
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
 		this.dibujar();
 		this.dibujarPiezaGuardadaCanvas();
+		// 👇 Si después querés dibujar las siguientes 4
+		this.dibujarSiguientesPiezasCanvas();
 	}
-
 	bajarPieza() {
 		this.borrarPieza(this.pieza, this.filaActual, this.colActual);
 		if (this.puedeMover(this.pieza, this.filaActual + 1, this.colActual)) {
@@ -296,21 +301,55 @@ export class Tablero {
 			this.contenedorGuardado.appendChild(cell);
 		}
 	}
+	dibujarSiguientesPiezasCanvas() {
+		const canvas = document.getElementById("canvas-proximas");
+		if (!canvas) return;
+		const ctx = canvas.getContext("2d");
+		const tamañoBloque = 20;
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		this.colaProximas.forEach((pieza, index) => {
+			const forma = pieza.forma;
+
+			// Bounding box
+			let minFila = forma.length,
+				maxFila = 0;
+			let minCol = forma[0].length,
+				maxCol = 0;
+
+			for (let fila = 0; fila < forma.length; fila++) {
+				for (let col = 0; col < forma[fila].length; col++) {
+					if (forma[fila][col] !== 0) {
+						if (fila < minFila) minFila = fila;
+						if (fila > maxFila) maxFila = fila;
+						if (col < minCol) minCol = col;
+						if (col > maxCol) maxCol = col;
+					}
+				}
+			}
+
+			const ancho = maxCol - minCol + 1;
+			const alto = maxFila - minFila + 1;
+
+			const offsetX = Math.floor((canvas.width / tamañoBloque - ancho) / 2);
+			const offsetY = index * 5 * tamañoBloque + Math.floor((5 - alto) / 2) * tamañoBloque + 10;
+
+			// Dibujar pieza centrada
+			for (let fila = minFila; fila <= maxFila; fila++) {
+				for (let col = minCol; col <= maxCol; col++) {
+					const valor = forma[fila][col];
+					if (valor !== 0) {
+						const x = (col - minCol + offsetX) * tamañoBloque;
+						const y = (fila - minFila) * tamañoBloque + offsetY;
+
+						ctx.fillStyle = COLORES[valor];
+						ctx.fillRect(x, y, tamañoBloque, tamañoBloque);
+						ctx.strokeStyle = "#222";
+						ctx.strokeRect(x, y, tamañoBloque, tamañoBloque);
+					}
+				}
+			}
+		});
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

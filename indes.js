@@ -3,10 +3,8 @@ import { Tablero } from "./Tablero.js";
 const contenedorTetris = document.getElementById("tetris-grid");
 const contenedorGuardado = document.getElementById("pieza-guardada");
 
-
 const tablero = new Tablero(contenedorTetris, 20, 10, contenedorGuardado);
 tablero.iniciar();
-
 
 document.addEventListener("keydown", (e) => {
 	switch (e.code) {
