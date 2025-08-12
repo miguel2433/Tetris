@@ -1,0 +1,184 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body, html{
+    height:100% ;
+}
+
+body{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+main{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+svg path{
+    position: absolute;
+    fill: transparent;
+    stroke:black;
+    stroke-width: 2;
+    stroke-dasharray: 185;
+    stroke-dashoffset: 185;
+    animation: textAnimation 4s ease-in-out 1 forwards;
+}
+
+.effect{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    height: 80px;
+    background: #fff;
+    border-radius: 40px;
+    transition: .5s;
+}
+
+.effect a .fa{
+  font-size: 40px;
+  color: #262626;
+  line-height: 80px;
+  transition: 0.5s;
+  padding-right: 14px;
+}
+
+.effect a span{
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  top: 30px;
+  color: #262626;
+  letter-spacing: 4px;
+  transition: .5s;
+}
+.effect a{
+  text-decoration: none;
+  display: block;
+  width: 210px;
+  height: 80px;
+  background-color: white;
+  text-align: left;
+  padding-left: 20px;
+  transform: rotate(-30deg) skew(25deg) translate(0, 0);
+  transition: .5s;
+  box-shadow: -20px 20px 10px rgba(0, 0, 0, .5);
+  animation: first 1s ease 1 forwards;
+}
+
+.effect a::before{
+  opacity: 0;
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -20px;
+  height: 100%;
+  width: 20px;
+  background-color: #b1b1b1;
+  transition: .5s;
+  transform: rotate(0deg) skewY(-45deg);
+  animation: second 1s ease 1 forwards;
+  animation-delay: 1s;
+}
+
+.effect a::after{
+  opacity: 0;
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: -10px;
+  height: 20px;
+  width: 100%;
+  background:#b1b1b1;
+  transition: .5s;
+  transform: skewX(-45deg);
+  animation: final 1s ease 1 forwards;
+  animation-delay: 2s;
+}
+
+.effect a:hover{
+  transform: rotate(-30deg) skew(25deg)
+  translate(20px, -15px);
+  box-shadow: -50px 50px 50px rgba(0,0,0,0.5);
+}
+
+.effect:hover .fa{
+  color: #ccc;
+}
+
+.effect:hover a{
+  background-color: #c93ec9;
+}
+.effect:hover a::before{
+  background-color: #a233a2;
+}
+.effect:hover a::after{
+  background-color: #e348e3;
+}
+@keyframes textAnimation{
+    0%{
+        stroke-dashoffset: 185;
+    }
+    80%{
+        fill: transparent;
+    }
+    100%{
+        fill: black;
+        stroke-dashoffset: 0;
+    }
+
+}
+
+@keyframes first {
+    0%{
+        translate: 0px -50px;
+        opacity: 0;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        translate: 0 0;
+
+    }
+}
+
+@keyframes second {
+    0%{
+        translate: -50px 0px;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        translate: 0 0;
+        opacity: 1;
+    }
+}
+
+@keyframes final {
+    0%{
+        translate: 0px 50px;
+        opacity: 0;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        translate: 0 0;
+        opacity: 1;
+    }
+}
