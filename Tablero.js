@@ -118,6 +118,7 @@ export class Tablero {
 	// Métodos para mover piezas y actualizar estado:
 
 	generarNuevaPieza() {
+		this.piezaFijada = false; // desbloquea movimiento para nueva pieza
 		this.piezaActual = this.colaProximas.shift();
 		this.colaProximas.push(new Pieza());
 
@@ -128,10 +129,9 @@ export class Tablero {
 
 		if (!this.puedeMover(this.pieza, this.filaActual, this.colActual)) {
 			clearInterval(this.intervalo);
-			return false; // Indicar game over
+			return false; // game over
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.puedeGuardar = true;
 		return true;
 	}
 
@@ -180,6 +180,7 @@ export class Tablero {
 			this.filaActual++;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
+		this.piezaFijada = true; // Ya no se puede mover
 	}
 
 	guardarPieza() {

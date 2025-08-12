@@ -37,6 +37,9 @@ function gameLoop() {
 }
 
 function iniciarJuego() {
+	if (tablero.intervalo) {
+		clearInterval(tablero.intervalo);
+	}
 	vista.mostrarGameOver(false);
 	tablero.reiniciar();
 	tablero.generarNuevaPieza();
@@ -45,9 +48,9 @@ function iniciarJuego() {
 	tablero.intervalo = setInterval(gameLoop, 500);
 }
 
-// Eventos de controles
+
 document.addEventListener("keydown", (e) => {
-	if (!tablero.piezaActual) return;
+	if (!tablero.piezaActual || tablero.piezaFijada) return;
 
 	switch (e.key) {
 		case "ArrowLeft":
@@ -66,6 +69,8 @@ document.addEventListener("keydown", (e) => {
 			tablero.soltar();
 			break;
 		case "Shift":
+		case "c":
+		case "C":
 			tablero.guardarPieza();
 			break;
 	}
@@ -75,3 +80,7 @@ document.addEventListener("keydown", (e) => {
 
 // Arrancar el juego
 iniciarJuego();
+
+document.getElementById("boton-reiniciar").addEventListener("click", () => {
+	iniciarJuego();
+});
