@@ -66,6 +66,7 @@ svg path{
   transition: .5s;
 }
 .effect a{
+  opacity: 0;
   text-decoration: none;
   display: block;
   width: 210px;
@@ -77,6 +78,7 @@ svg path{
   transition: .5s;
   box-shadow: -20px 20px 10px rgba(0, 0, 0, .5);
   animation: first 1s ease 1 forwards;
+  animation-delay: 1s;
 }
 
 .effect a::before{
@@ -91,7 +93,7 @@ svg path{
   transition: .5s;
   transform: rotate(0deg) skewY(-45deg);
   animation: second 1s ease 1 forwards;
-  animation-delay: 1s;
+  animation-delay: 2s;
 }
 
 .effect a::after{
@@ -106,7 +108,7 @@ svg path{
   transition: .5s;
   transform: skewX(-45deg);
   animation: final 1s ease 1 forwards;
-  animation-delay: 2s;
+  animation-delay: 3s;
 }
 
 .effect a:hover{
@@ -129,6 +131,8 @@ svg path{
 .effect:hover a::after{
   background-color: #e348e3;
 }
+
+
 @keyframes textAnimation{
     0%{
         stroke-dashoffset: 185;
@@ -153,7 +157,7 @@ svg path{
     }
     100%{
         translate: 0 0;
-
+        opacity: 1;
     }
 }
 
