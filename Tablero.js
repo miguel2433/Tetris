@@ -1,15 +1,12 @@
-// Archivo: Tablero.js
+// Tablero.js
 import { Pieza } from "./Pieza.js";
-import { COLORES } from "./Colores.js";
 
 export class Tablero {
-	constructor(contenedor, filas = 20, columnas = 10, contenedorGuardado = null) {
-		this.contenedor = contenedor;
+	constructor(filas = 20, columnas = 10) {
 		this.filas = filas;
 		this.columnas = columnas;
 		this.matriz = this.crearMatrizVacia();
 		this.puntaje = 0;
-		this.intervalo = null;
 
 		this.piezaActual = null;
 		this.pieza = null;
@@ -22,24 +19,15 @@ export class Tablero {
 
 		this.colaProximas = [new Pieza(), new Pieza(), new Pieza(), new Pieza()];
 
-		this.contenedorGuardado = contenedorGuardado;
-		if (this.contenedorGuardado) {
-			this.inicializarVistaGuardado();
-		}
-
-		this.inicializarVista();
+		this.intervalo = null;
 	}
+
 	crearMatrizVacia() {
 		return Array.from({ length: this.filas }, () => Array(this.columnas).fill(0));
 	}
 
-	inicializarVista() {
-		for (let i = 0; i < this.filas * this.columnas; i++) {
-			const cell = document.createElement("div");
-			cell.className = "cell";
-			this.contenedor.appendChild(cell);
-		}
-	}
+	// Métodos lógicos (puedeMover, colocarPieza, borrarPieza, rotarPieza, limpiarFilasCompletas, etc.)
+	// Sin manipulación directa del DOM
 
 	colocarPieza(pieza, filaPos, colPos) {
 		for (let fila = 0; fila < pieza.length; fila++) {
@@ -114,31 +102,24 @@ export class Tablero {
 	}
 
 	limpiarFilasCompletas() {
+		let filasLimpiadas = 0;
 		for (let fila = this.filas - 1; fila >= 0; fila--) {
 			if (this.matriz[fila].every((celda) => celda !== 0)) {
 				this.matriz.splice(fila, 1);
 				this.matriz.unshift(Array(this.columnas).fill(0));
 				this.puntaje += 100;
+				filasLimpiadas++;
 				fila++;
 			}
 		}
-		document.getElementById("puntaje").innerText = `Puntaje: ${this.puntaje}`;
+		return filasLimpiadas;
 	}
 
-	dibujar() {
-		const cells = this.contenedor.querySelectorAll(".cell");
-		for (let fila = 0; fila < this.filas; fila++) {
-			for (let col = 0; col < this.columnas; col++) {
-				const index = fila * this.columnas + col;
-				const celdaValor = this.matriz[fila][col];
-				cells[index].style.backgroundColor = celdaValor !== 0 ? COLORES[celdaValor] : "#222";
-			}
-		}
-	}
+	// Métodos para mover piezas y actualizar estado:
 
 	generarNuevaPieza() {
-		this.piezaActual = this.colaProximas.shift(); // Sacar de la cola
-		this.colaProximas.push(new Pieza()); // Meter una nueva al final
+		this.piezaActual = this.colaProximas.shift();
+		this.colaProximas.push(new Pieza());
 
 		this.pieza = this.piezaActual.forma;
 		this.tipo = this.piezaActual.tipo;
@@ -146,17 +127,14 @@ export class Tablero {
 		this.colActual = 3;
 
 		if (!this.puedeMover(this.pieza, this.filaActual, this.colActual)) {
-			console.log("¡Game Over!");
 			clearInterval(this.intervalo);
-			return;
+			return false; // Indicar game over
 		}
-
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
-		this.dibujarPiezaGuardadaCanvas();
-		// 👇 Si después querés dibujar las siguientes 4
-		this.dibujarSiguientesPiezasCanvas();
+		this.puedeGuardar = true;
+		return true;
 	}
+
 	bajarPieza() {
 		this.borrarPieza(this.pieza, this.filaActual, this.colActual);
 		if (this.puedeMover(this.pieza, this.filaActual + 1, this.colActual)) {
@@ -164,29 +142,19 @@ export class Tablero {
 		} else {
 			this.colocarPieza(this.pieza, this.filaActual, this.colActual);
 			this.limpiarFilasCompletas();
-			this.dibujar();
+			this.puedeGuardar = true;
 			this.generarNuevaPieza();
-			this.puedeGuardar = true; // desbloquea guardar tras pieza fija
 			return;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
-	}
-
-	iniciar() {
-		this.generarNuevaPieza();
-		this.intervalo = setInterval(() => this.bajarPieza(), 500);
 	}
 
 	moverIzquierda() {
-		// Borrar pieza antes de chequear si puede moverse
 		this.borrarPieza(this.pieza, this.filaActual, this.colActual);
 		if (this.puedeMover(this.pieza, this.filaActual, this.colActual - 1)) {
 			this.colActual--;
 		}
-		// Colocar pieza y dibujar
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
 	}
 
 	moverDerecha() {
@@ -195,7 +163,6 @@ export class Tablero {
 			this.colActual++;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
 	}
 
 	rotar() {
@@ -205,7 +172,6 @@ export class Tablero {
 			this.pieza = rotada;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
 	}
 
 	soltar() {
@@ -214,9 +180,10 @@ export class Tablero {
 			this.filaActual++;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
 	}
+
 	guardarPieza() {
+		if (!this.puedeGuardar) return; // bloqueo guardado repetido
 		if (!this.piezaActual) return;
 
 		if (!this.piezaGuardada) {
@@ -234,122 +201,18 @@ export class Tablero {
 			this.colActual = 3;
 		}
 		this.colocarPieza(this.pieza, this.filaActual, this.colActual);
-		this.dibujar();
-		this.dibujarPiezaGuardadaCanvas(); // Usar canvas para dibujar guardada
+		this.puedeGuardar = false; // bloqueo hasta nueva pieza
 	}
 
-	dibujarPiezaGuardadaCanvas() {
-		const canvas = document.getElementById("canvas-pieza-guardada");
-		if (!canvas) return;
-
-		const ctx = canvas.getContext("2d");
-		const tamañoBloque = 20;
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		if (!this.piezaGuardada) return;
-
-		const forma = this.piezaGuardada.forma;
-
-		// Encontrar bounding box
-		let minFila = forma.length,
-			maxFila = 0,
-			minCol = forma[0].length,
-			maxCol = 0;
-
-		for (let fila = 0; fila < forma.length; fila++) {
-			for (let col = 0; col < forma[fila].length; col++) {
-				if (forma[fila][col] !== 0) {
-					if (fila < minFila) minFila = fila;
-					if (fila > maxFila) maxFila = fila;
-					if (col < minCol) minCol = col;
-					if (col > maxCol) maxCol = col;
-				}
-			}
-		}
-
-		const ancho = maxCol - minCol + 1;
-		const alto = maxFila - minFila + 1;
-
-		const offsetX = Math.floor((canvas.width / tamañoBloque - ancho) / 2);
-		const offsetY = Math.floor((canvas.height / tamañoBloque - alto) / 2);
-
-		// Dibujar pieza centrada
-		for (let fila = minFila; fila <= maxFila; fila++) {
-			for (let col = minCol; col <= maxCol; col++) {
-				const valor = forma[fila][col];
-				if (valor !== 0) {
-					const x = (col - minCol + offsetX) * tamañoBloque;
-					const y = (fila - minFila + offsetY) * tamañoBloque;
-
-					ctx.fillStyle = COLORES[valor];
-					ctx.fillRect(x, y, tamañoBloque, tamañoBloque);
-
-					ctx.strokeStyle = "#222";
-					ctx.strokeRect(x, y, tamañoBloque, tamañoBloque);
-				}
-			}
-		}
-	}
-	inicializarVistaGuardado() {
-		// Limpiar contenido previo (por si reinicia)
-		this.contenedorGuardado.innerHTML = "";
-		// Creamos 4x4 = 16 celdas para la pieza guardada (tamaño típico)
-		for (let i = 0; i < 25; i++) {
-			const cell = document.createElement("div");
-			cell.className = "cell";
-			this.contenedorGuardado.appendChild(cell);
-		}
-	}
-	dibujarSiguientesPiezasCanvas() {
-		const canvas = document.getElementById("canvas-proximas");
-		if (!canvas) return;
-		const ctx = canvas.getContext("2d");
-		const tamañoBloque = 20;
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		this.colaProximas.forEach((pieza, index) => {
-			const forma = pieza.forma;
-
-			// Bounding box
-			let minFila = forma.length,
-				maxFila = 0;
-			let minCol = forma[0].length,
-				maxCol = 0;
-
-			for (let fila = 0; fila < forma.length; fila++) {
-				for (let col = 0; col < forma[fila].length; col++) {
-					if (forma[fila][col] !== 0) {
-						if (fila < minFila) minFila = fila;
-						if (fila > maxFila) maxFila = fila;
-						if (col < minCol) minCol = col;
-						if (col > maxCol) maxCol = col;
-					}
-				}
-			}
-
-			const ancho = maxCol - minCol + 1;
-			const alto = maxFila - minFila + 1;
-
-			const offsetX = Math.floor((canvas.width / tamañoBloque - ancho) / 2);
-			const offsetY = index * 5 * tamañoBloque + Math.floor((5 - alto) / 2) * tamañoBloque + 10;
-
-			// Dibujar pieza centrada
-			for (let fila = minFila; fila <= maxFila; fila++) {
-				for (let col = minCol; col <= maxCol; col++) {
-					const valor = forma[fila][col];
-					if (valor !== 0) {
-						const x = (col - minCol + offsetX) * tamañoBloque;
-						const y = (fila - minFila) * tamañoBloque + offsetY;
-
-						ctx.fillStyle = COLORES[valor];
-						ctx.fillRect(x, y, tamañoBloque, tamañoBloque);
-						ctx.strokeStyle = "#222";
-						ctx.strokeRect(x, y, tamañoBloque, tamañoBloque);
-					}
-				}
-			}
-		});
+	reiniciar() {
+		this.matriz = this.crearMatrizVacia();
+		this.puntaje = 0;
+		this.colaProximas = [new Pieza(), new Pieza(), new Pieza(), new Pieza()];
+		this.piezaActual = null;
+		this.piezaGuardada = null;
+		this.puedeGuardar = true;
+		this.filaActual = 0;
+		this.colActual = 3;
 	}
 }
+
